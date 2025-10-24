@@ -130,7 +130,7 @@ EOFVALIDATE
   print_info "[3/6] サービスファイル構文チェック..."
   scp "$SERVICE_FILE" "${SSH_HOST}:/tmp/${SERVICE_NAME}.service.test"
 
-  ssh "$SSH_HOST" << 'EOFSYNTAX'
+  ssh "$SSH_HOST" << EOFSYNTAX
 sudo mv /tmp/${SERVICE_NAME}.service.test /etc/systemd/system/${SERVICE_NAME}.service.test
 sudo systemctl daemon-reload
 
