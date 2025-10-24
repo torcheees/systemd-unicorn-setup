@@ -10,10 +10,17 @@ This repository contains generator scripts that create `systemd_setup.sh` files 
 
 ```
 systemd-unicorn-setup/
+├── config/
+│   └── projects.yml                 # Project configuration file (YAML)
 ├── scripts/
-│   ├── generate_all.sh              # Direct generator (generates scripts inline)
-│   └── generate_setup_scripts.sh    # Template-based generator (uses medica as template)
-└── README.md
+│   ├── generate_from_yaml.sh       # YAML-based generator (Recommended)
+│   ├── generate_all.sh             # Legacy: Direct generator (generates scripts inline)
+│   ├── generate_setup_scripts.sh   # Legacy: Template-based generator (uses medica as template)
+│   └── lib/
+│       ├── yaml_parser.sh          # YAML parser library
+│       └── ssh_parser.sh           # SSH config parser library
+├── README.md
+└── README.ja.md                     # Japanese documentation
 ```
 
 ## Managed Projects
@@ -30,35 +37,103 @@ The following projects are managed by these scripts:
 | ndp-seramid | ndp-seramid-unicorn | /home/deploy/apps/ndp-seramid | 104.238.151.79:11270 |
 | ndp-king-gear | king-gear-unicorn | /home/deploy/apps/king_gear | 45.32.28.159:57777 |
 
-## Generator Scripts
+## Quick Start
 
-### 1. `generate_all.sh` (Recommended)
+### 1. List All Projects
 
-Generates setup scripts directly without requiring a template file. This is the standalone, self-contained generator.
+```bash
+./scripts/generate_from_yaml.sh --list
+```
+
+### 2. Validate Configuration (SSH Config Integration)
+
+```bash
+./scripts/generate_from_yaml.sh --validate
+```
+
+Automatically retrieves HostName and Port from `~/.ssh/config` and validates all project configurations.
+
+### 3. Generate Setup Scripts
+
+```bash
+# Generate all projects
+./scripts/generate_from_yaml.sh
+
+# Generate specific project only
+./scripts/generate_from_yaml.sh medica
+```
+
+## YAML-Based Generator (Recommended)
+
+### Features
+
+- **YAML Configuration File**: Centralized project management in `config/projects.yml`
+- **SSH Config Integration**: Automatically retrieves HostName/Port from `~/.ssh/config`
+- **Directory Mapping**: Explicit local-to-remote path mappings
+- **Validation**: Pre-deployment validation of configuration and SSH connectivity
+- **Selective Generation**: Generate all projects or specific projects only
+
+### Usage
+
+#### List Projects
+
+```bash
+./scripts/generate_from_yaml.sh --list
+```
+
+#### Validate Configuration
+
+```bash
+./scripts/generate_from_yaml.sh --validate
+```
+
+Validates:
+- SSH Host exists in `~/.ssh/config`
+- SSH connection info (HostName, Port, User) retrieval
+- Local directory existence
+
+#### Generate Scripts
+
+```bash
+# All projects
+./scripts/generate_from_yaml.sh
+
+# Specific project
+./scripts/generate_from_yaml.sh medica
+```
+
+### Adding New Projects
+
+1. Add new project entry to `config/projects.yml`
+2. Ensure SSH Host is configured in `~/.ssh/config`
+3. Validate: `./scripts/generate_from_yaml.sh --validate`
+4. Generate: `./scripts/generate_from_yaml.sh <project_name>`
+
+See `README.ja.md` for detailed YAML configuration format.
+
+## Legacy Generators
+
+For backward compatibility, legacy generator scripts are still available:
+
+### `generate_all.sh`
+
+Generates setup scripts directly without requiring a template file.
 
 **Usage:**
 ```bash
-cd scripts
-./generate_all.sh
+./scripts/generate_all.sh
 ```
 
-**Features:**
-- Self-contained (no external dependencies)
-- Generates complete `systemd_setup.sh` for each project
-- Creates scripts in each project's `script/` directory
-
-### 2. `generate_setup_scripts.sh`
+### `generate_setup_scripts.sh`
 
 Template-based generator that uses the medica project's setup script as a template.
 
 **Usage:**
 ```bash
-cd scripts
-./generate_setup_scripts.sh
+./scripts/generate_setup_scripts.sh
 ```
 
-**Requirements:**
-- Requires `/Users/akimitsukoshikawa/workspace/torcheees/medica/script/systemd_setup.sh` to exist as template
+**Note:** For new projects, use the **YAML-based generator** (`generate_from_yaml.sh`) instead
 
 ## Generated Setup Script Features
 

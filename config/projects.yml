@@ -1,0 +1,106 @@
+# Systemd Unicorn セットアップ - プロジェクト設定
+#
+# 使用方法:
+#   1. SSH configのHost名を指定
+#   2. ローカルとリモートのパスをマッピング
+#   3. ./scripts/generate_from_yaml.sh で一括生成
+
+projects:
+  - name: medica
+    ssh_host: torcheees_medica_prod  # ~/.ssh/config のHost名
+    service_name: medica-unicorn
+    app_name: medica
+    remote:
+      app_path: /home/deploy/apps/medica
+      user: deploy
+    local:
+      project_path: /Users/akimitsukoshikawa/workspace/torcheees/medica
+      service_file: config/systemd/medica-unicorn.service
+      output_script: script/systemd_setup.sh
+
+  - name: corp
+    ssh_host: torcheees_corp_prod
+    service_name: corp-unicorn
+    app_name: corp
+    remote:
+      app_path: /home/deploy/apps/corp
+      user: deploy
+    local:
+      project_path: /Users/akimitsukoshikawa/workspace/torcheees/corp
+      service_file: config/systemd/corp-unicorn.service
+      output_script: script/systemd_setup.sh
+
+  - name: ex_dance_stadium
+    ssh_host: ndp_dance_prod
+    service_name: dance-stadium-unicorn
+    app_name: dance_stadium
+    remote:
+      app_path: /home/deploy/apps/dance_stadium
+      user: deploy
+    local:
+      project_path: /Users/akimitsukoshikawa/workspace/torcheees/ex_dance_stadium
+      service_file: config/systemd/dance-stadium-unicorn.service
+      output_script: script/systemd_setup.sh
+
+  - name: ndp-kabarai-lp-for-fujii
+    ssh_host: ndp_kabarai_fujii
+    service_name: kabarai-for-fujii-unicorn
+    app_name: kabarai_for_fujii
+    remote:
+      app_path: /home/deploy/apps/kabarai_for_fujii
+      user: deploy
+    local:
+      project_path: /Users/akimitsukoshikawa/workspace/ndp/ndp-kabarai-lp-for-fujii
+      service_file: config/systemd/kabarai-for-fujii-unicorn.service
+      output_script: script/systemd_setup.sh
+
+  - name: ndp_yamikin_lp
+    ssh_host: ndp_yamikin_lp_prod
+    service_name: ndp-yamikin-lp-unicorn
+    app_name: ndp_yamikin_lp
+    remote:
+      app_path: /home/deploy/apps/ndp_yamikin_lp
+      user: deploy
+    local:
+      project_path: /Users/akimitsukoshikawa/workspace/torcheees/ndp_yamikin_lp
+      service_file: config/systemd/ndp-yamikin-lp-unicorn.service
+      output_script: script/systemd_setup.sh
+
+  - name: ndp-seramid
+    ssh_host: ndp_seramid
+    service_name: ndp-seramid-unicorn
+    app_name: ndp-seramid
+    remote:
+      app_path: /home/deploy/apps/ndp-seramid
+      user: deploy
+    local:
+      project_path: /Users/akimitsukoshikawa/workspace/ndp/ndp-seramid
+      service_file: config/systemd/ndp-seramid-unicorn.service
+      output_script: script/systemd_setup.sh
+
+  - name: ndp-king-gear
+    ssh_host: ndp_king_gear
+    service_name: king-gear-unicorn
+    app_name: king_gear
+    remote:
+      app_path: /home/deploy/apps/king_gear
+      user: deploy
+    local:
+      project_path: /Users/akimitsukoshikawa/workspace/torcheees/ndp-king-gear
+      service_file: config/systemd/king-gear-unicorn.service
+      output_script: script/systemd_setup.sh
+
+# SSH Config 自動検出設定
+ssh_config:
+  path: ~/.ssh/config
+  auto_detect: true  # SSH Hostから自動的にHostName/Portを取得
+
+# デフォルト設定
+defaults:
+  remote:
+    user: deploy
+    ruby_manager: rbenv  # rbenv or rvm
+    rails_env: production
+  local:
+    service_file: config/systemd/{service_name}.service
+    output_script: script/systemd_setup.sh
