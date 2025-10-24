@@ -1,0 +1,57 @@
+# Systemd Unicorn セットアップ - プロジェクト設定例
+#
+# このファイルをコピーして使用してください:
+#   cp config/projects.example.yml config/projects.yml
+#
+# または、各プロジェクトのルートに .systemd-setup.yml を配置してください
+
+# ============================================================
+# 複数プロジェクト管理モード
+# ============================================================
+# 複数のプロジェクトを一元管理する場合、このファイルで設定
+
+projects:
+  # プロジェクト例 1
+  - name: my_app
+    ssh_host: my_app_prod              # ~/.ssh/config のHost名
+    service_name: my-app-unicorn       # systemdサービス名
+    app_name: my_app                   # アプリケーション名
+    remote:
+      app_path: /home/deploy/apps/my_app  # リモートのアプリパス
+      user: deploy                      # リモートユーザー
+    local:
+      project_path: /Users/user/workspace/my_app     # ローカルプロジェクトパス
+      service_file: config/systemd/my-app-unicorn.service  # サービスファイルパス
+      output_script: script/systemd_setup.sh         # 生成先スクリプトパス
+
+  # プロジェクト例 2
+  - name: another_app
+    ssh_host: another_prod
+    service_name: another-unicorn
+    app_name: another
+    remote:
+      app_path: /home/deploy/apps/another
+      user: deploy
+    local:
+      project_path: /Users/user/workspace/another
+      service_file: config/systemd/another-unicorn.service
+      output_script: script/systemd_setup.sh
+
+# ============================================================
+# SSH Config 設定
+# ============================================================
+ssh_config:
+  path: ~/.ssh/config      # SSH configファイルパス
+  auto_detect: true        # SSH Hostから自動的にHostName/Portを取得
+
+# ============================================================
+# デフォルト設定
+# ============================================================
+defaults:
+  remote:
+    user: deploy
+    ruby_manager: rbenv    # rbenv or rvm
+    rails_env: production
+  local:
+    service_file: config/systemd/{service_name}.service
+    output_script: script/systemd_setup.sh

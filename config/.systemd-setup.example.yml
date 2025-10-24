@@ -1,0 +1,47 @@
+# Systemd Unicorn セットアップ - 単一プロジェクト設定
+#
+# 各プロジェクトのルートディレクトリに .systemd-setup.yml として配置
+#
+# 使用方法:
+#   1. このファイルをプロジェクトルートにコピー
+#      cp .systemd-setup.example.yml /path/to/your/project/.systemd-setup.yml
+#
+#   2. 設定を編集
+#
+#   3. スクリプト生成
+#      ./scripts/generate_from_yaml.sh --project /path/to/your/project
+
+# ============================================================
+# プロジェクト設定
+# ============================================================
+project:
+  name: my_app
+  ssh_host: my_app_prod              # ~/.ssh/config のHost名
+  service_name: my-app-unicorn       # systemdサービス名
+  app_name: my_app                   # アプリケーション名
+
+# ============================================================
+# リモート環境設定
+# ============================================================
+remote:
+  app_path: /home/deploy/apps/my_app  # リモートのアプリパス
+  user: deploy                        # リモートユーザー
+  ruby_manager: rbenv                 # rbenv or rvm
+  rails_env: production               # Rails環境
+
+# ============================================================
+# ローカル環境設定
+# ============================================================
+local:
+  # サービスファイルの場所（プロジェクトルートからの相対パス）
+  service_file: config/systemd/my-app-unicorn.service
+
+  # 生成するスクリプトの場所（プロジェクトルートからの相対パス）
+  output_script: script/systemd_setup.sh
+
+# ============================================================
+# SSH Config 設定
+# ============================================================
+ssh_config:
+  path: ~/.ssh/config      # SSH configファイルパス
+  auto_detect: true        # SSH Hostから自動的にHostName/Portを取得

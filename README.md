@@ -1,26 +1,41 @@
 # Systemd Unicorn Setup Scripts
 
-Systemd service setup automation scripts for multiple Unicorn-based Rails applications.
+Systemd service setup automation scripts for Unicorn-based Rails applications.
 
 ## Overview
 
-This repository contains generator scripts that create `systemd_setup.sh` files for each project. These setup scripts automate the deployment and configuration of systemd services for Unicorn application servers.
+This repository contains generator scripts that create `systemd_setup.sh` files for projects. These setup scripts automate the deployment and configuration of systemd services for Unicorn application servers.
+
+**🎯 Universal Tool**: This tool is **completely generic** and can be used with **any** Unicorn Rails project.
+
+## Quick Links
+
+- **汎用的な使い方 (Generic Usage)**: [README.generic.md](README.generic.md) - どんなプロジェクトでも使える方法
+- **日本語ドキュメント**: [README.ja.md](README.ja.md) - 詳細な日本語ドキュメント
+- **Multiple Projects Management**: See below for managing multiple projects
 
 ## Repository Structure
 
 ```
 systemd-unicorn-setup/
 ├── config/
-│   └── projects.yml                 # Project configuration file (YAML)
+│   ├── projects.yml                       # Multiple projects configuration
+│   ├── projects.example.yml               # Example configuration
+│   └── .systemd-setup.example.yml         # Single project template
+├── templates/
+│   └── systemd_setup.sh.template          # Universal script template
 ├── scripts/
-│   ├── generate_from_yaml.sh       # YAML-based generator (Recommended)
-│   ├── generate_all.sh             # Legacy: Direct generator (generates scripts inline)
-│   ├── generate_setup_scripts.sh   # Legacy: Template-based generator (uses medica as template)
+│   ├── generate_setup.sh                  # 🌟 Universal generator (Recommended)
+│   ├── generate_from_yaml.sh              # YAML-based multi-project generator
+│   ├── generate_all.sh                    # Legacy generator
+│   ├── generate_setup_scripts.sh          # Legacy generator
 │   └── lib/
-│       ├── yaml_parser.sh          # YAML parser library
-│       └── ssh_parser.sh           # SSH config parser library
-├── README.md
-└── README.ja.md                     # Japanese documentation
+│       ├── yaml_parser.sh                 # YAML parser library
+│       ├── ssh_parser.sh                  # SSH config parser library
+│       └── single_project_parser.sh       # Single project parser
+├── README.md                               # This file
+├── README.generic.md                       # 🌟 Generic usage guide
+└── README.ja.md                            # Japanese documentation
 ```
 
 ## Managed Projects
@@ -39,23 +54,35 @@ The following projects are managed by these scripts:
 
 ## Quick Start
 
-### 1. List All Projects
+### For Any Project (Universal Mode) 🌟
+
+**See [README.generic.md](README.generic.md) for detailed generic usage guide.**
 
 ```bash
+# Interactive mode (easiest)
+./scripts/generate_setup.sh --interactive
+
+# Command-line mode
+./scripts/generate_setup.sh \
+  --service-name my-app-unicorn \
+  --app-name my_app \
+  --app-path /home/deploy/apps/my_app \
+  --ssh-host my_app_prod \
+  --output /path/to/project/script/systemd_setup.sh
+
+# Project directory mode (with .systemd-setup.yml)
+./scripts/generate_setup.sh --project /path/to/project
+```
+
+### For Multiple Projects Management
+
+```bash
+# List all managed projects
 ./scripts/generate_from_yaml.sh --list
-```
 
-### 2. Validate Configuration (SSH Config Integration)
-
-```bash
+# Validate configuration
 ./scripts/generate_from_yaml.sh --validate
-```
 
-Automatically retrieves HostName and Port from `~/.ssh/config` and validates all project configurations.
-
-### 3. Generate Setup Scripts
-
-```bash
 # Generate all projects
 ./scripts/generate_from_yaml.sh
 
