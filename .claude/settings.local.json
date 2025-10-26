@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git branch:*)",
+      "Bash(gh repo create:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Read(//Users/akimitsukoshikawa/.ssh/**)",
+      "Bash(chmod:*)",
+      "Bash(./scripts/generate_from_yaml.sh:*)",
+      "Bash(bash:*)",
+      "Read(//Users/akimitsukoshikawa/workspace/torcheees/medica/script/**)",
+      "Bash(./scripts/generate_setup.sh:*)",
+      "Read(//private/tmp/**)",
+      "Read(//Users/akimitsukoshikawa/workspace/torcheees/ndp-king-gear/**)",
+      "Bash(/Users/akimitsukoshikawa/workspace/torcheees/systemd-unicorn-setup/scripts/generate_setup.sh:*)",
+      "Bash(./script/systemd_setup.sh:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

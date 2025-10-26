@@ -1,0 +1,47 @@
+[Unit]
+Description={{APP_NAME}} Unicorn Server
+After=network.target mysql.service
+Before=nginx.service
+Requires=mysql.service
+
+[Service]
+Type=forking
+User={{REMOTE_USER}}
+Group={{REMOTE_USER}}
+WorkingDirectory={{APP_PATH}}/current
+
+Environment=RAILS_ENV={{RAILS_ENV}}
+Environment=BUNDLE_GEMFILE={{APP_PATH}}/current/Gemfile
+Environment=RBENV_ROOT=/home/{{REMOTE_USER}}/.rbenv
+Environment=PATH=/home/{{REMOTE_USER}}/.rbenv/shims:/home/{{REMOTE_USER}}/.rbenv/bin:/usr/local/bin:/usr/bin:/bin
+
+# PIDファイル
+PIDFile={{APP_PATH}}/current/tmp/pids/unicorn.pid
+
+# 起動コマンド（rbenv経由）
+ExecStart=/bin/bash -lc 'cd {{APP_PATH}}/current && bundle exec {{UNICORN_COMMAND}} -c config/unicorn.rb -E {{RAILS_ENV}} -D'
+
+# 再読み込み（Capistranoのunicorn:restartとの互換性）
+ExecReload=/bin/kill -USR2 $MAINPID
+
+# 停止コマンド（グレースフルシャットダウン）
+ExecStop=/bin/kill -QUIT $MAINPID
+
+# 再起動設定（異常終了時のみ）
+# Capistranoからの手動停止（systemctl経由ではない）は再起動しない
+Restart=on-failure
+RestartSec=10
+
+# Capistranoがプロセスを直接操作することを許可
+# systemdはプロセスが異常終了した場合のみ介入
+KillMode=process
+
+# タイムアウト設定
+TimeoutStartSec=300
+TimeoutStopSec=30
+
+# セキュリティ設定
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

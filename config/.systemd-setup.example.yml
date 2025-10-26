@@ -28,6 +28,7 @@ remote:
   user: deploy                        # リモートユーザー
   ruby_manager: rbenv                 # rbenv or rvm
   rails_env: production               # Rails環境
+  unicorn_command: unicorn_rails      # unicorn または unicorn_rails (デフォルト: unicorn)
 
 # ============================================================
 # ローカル環境設定

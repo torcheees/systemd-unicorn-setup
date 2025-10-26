@@ -73,6 +73,37 @@ OPTIONS:
 EOF
 }
 
+# サービスファイル生成関数
+generate_service_file() {
+  local service_name="$1"
+  local app_name="$2"
+  local app_path="$3"
+  local remote_user="$4"
+  local rails_env="$5"
+  local unicorn_command="$6"
+  local output_file="$7"
+
+  # テンプレートファイル
+  local template_file="$PROJECT_ROOT/templates/unicorn.service.template"
+
+  if [ ! -f "$template_file" ]; then
+    print_error "サービステンプレートファイルが見つかりません: $template_file"
+    return 1
+  fi
+
+  # 出力ディレクトリ作成
+  mkdir -p "$(dirname "$output_file")"
+
+  # テンプレートを読み込んでプレースホルダーを置換
+  sed -e "s|{{SERVICE_NAME}}|${service_name}|g" \
+      -e "s|{{APP_NAME}}|${app_name}|g" \
+      -e "s|{{APP_PATH}}|${app_path}|g" \
+      -e "s|{{REMOTE_USER}}|${remote_user}|g" \
+      -e "s|{{RAILS_ENV}}|${rails_env}|g" \
+      -e "s|{{UNICORN_COMMAND}}|${unicorn_command}|g" \
+      "$template_file" > "$output_file"
+}
+
 # スクリプト生成関数
 generate_setup_script() {
   local service_name="$1"
@@ -139,10 +170,20 @@ generate_from_project() {
     return 1
   fi
 
+  # デフォルト値設定
+  local remote_user="${REMOTE_user:-deploy}"
+  local rails_env="${REMOTE_rails_env:-production}"
+  local unicorn_command="${REMOTE_unicorn_command:-unicorn}"
+
   # 出力ファイルパス
-  local output_file="$LOCAL_output_script"
-  if [ -z "$output_file" ]; then
-    output_file="$project_dir/script/systemd_setup.sh"
+  local output_script="$LOCAL_output_script"
+  if [ -z "$output_script" ]; then
+    output_script="$project_dir/script/systemd_setup.sh"
+  fi
+
+  local service_file="$LOCAL_service_file"
+  if [ -z "$service_file" ]; then
+    service_file="$project_dir/config/systemd/${PROJECT_service_name}.service"
   fi
 
   print_info "=== 設定情報 ==="
@@ -150,7 +191,9 @@ generate_from_project() {
   print_info "サービス名: $PROJECT_service_name"
   print_info "SSH Host: $PROJECT_ssh_host"
   print_info "リモートパス: $REMOTE_app_path"
-  print_info "出力先: $output_file"
+  print_info "Unicornコマンド: $unicorn_command"
+  print_info "サービスファイル: $service_file"
+  print_info "セットアップスクリプト: $output_script"
   echo ""
 
   # SSH Host検証
@@ -166,16 +209,27 @@ generate_from_project() {
     print_warning "SSH Hostが ~/.ssh/config に見つかりません: $PROJECT_ssh_host"
   fi
 
-  # スクリプト生成
-  print_info "スクリプト生成中..."
+  # サービスファイル生成
+  print_info "サービスファイル生成中..."
+  if generate_service_file "$PROJECT_service_name" "$PROJECT_app_name" \
+                           "$REMOTE_app_path" "$remote_user" "$rails_env" \
+                           "$unicorn_command" "$service_file"; then
+    print_success "サービスファイル生成完了: $service_file"
+  else
+    print_error "サービスファイル生成に失敗しました"
+    return 1
+  fi
+
+  # セットアップスクリプト生成
+  print_info "セットアップスクリプト生成中..."
   if generate_setup_script "$PROJECT_service_name" "$PROJECT_app_name" \
                            "$REMOTE_app_path" "$PROJECT_ssh_host" \
-                           "$output_file"; then
-    print_success "生成完了: $output_file"
+                           "$output_script"; then
+    print_success "セットアップスクリプト生成完了: $output_script"
     echo ""
     echo "次のステップ:"
     echo "  cd $project_dir"
-    echo "  $output_file --validate"
+    echo "  $output_script --validate"
     return 0
   else
     print_error "生成に失敗しました"
